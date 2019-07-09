@@ -26,10 +26,12 @@ import com.smartdevicelink.managers.file.filetypes.SdlArtwork;
 import com.smartdevicelink.protocol.enums.FunctionID;
 import com.smartdevicelink.proxy.RPCNotification;
 import com.smartdevicelink.proxy.rpc.OnHMIStatus;
+import com.smartdevicelink.proxy.rpc.SetDisplayLayout;
 import com.smartdevicelink.proxy.rpc.VideoStreamingCapability;
 import com.smartdevicelink.proxy.rpc.enums.AppHMIType;
 import com.smartdevicelink.proxy.rpc.enums.FileType;
 import com.smartdevicelink.proxy.rpc.enums.HMILevel;
+import com.smartdevicelink.proxy.rpc.enums.PredefinedLayout;
 import com.smartdevicelink.proxy.rpc.enums.SystemCapabilityType;
 import com.smartdevicelink.proxy.rpc.listeners.OnRPCNotificationListener;
 import com.smartdevicelink.streaming.video.SdlRemoteDisplay;
@@ -55,7 +57,7 @@ public class SdlService extends Service {
 	// The default port is 12345
 	// The IP is of the machine that is running SDL Core
 	private static final int TCP_PORT = 12345;
-	private static final String DEV_MACHINE_IP_ADDRESS = "192.168.1.105";
+	private static final String DEV_MACHINE_IP_ADDRESS = "10.0.0.1";
 
 	// variable to create and call functions of the SyncProxy
 	private SdlManager sdlManager = null;
@@ -158,6 +160,9 @@ public class SdlService extends Service {
 							//初回起動時の処理
 							if (status.getHmiLevel() == HMILevel.HMI_FULL && ((OnHMIStatus) notification).getFirstRun()) {
 
+								SetDisplayLayout setDisplayLayoutRequest = new SetDisplayLayout();
+								setDisplayLayoutRequest.setDisplayLayout(PredefinedLayout.NAV_FULLSCREEN_MAP.toString());
+								sdlManager.sendRPC(setDisplayLayoutRequest);
 								if (sdlManager.getVideoStreamManager() != null) {
 
 									//VideoStreamが有効になったら、プロジェクションを開始する
@@ -225,11 +230,7 @@ public class SdlService extends Service {
 					capability.getPreferredResolution().getResolutionHeight()));
 		}
 
-		//SDL DEVELOPMENT TOOLSの場合、800, 350が返ってくる
-		//そのままだと縦長の画像になるため、カタログスペックのサイズを強制的に設定する
 		VideoStreamingParameters parameters = new VideoStreamingParameters();
-		parameters.getResolution().setResolutionWidth(800);
-		parameters.getResolution().setResolutionHeight(480);
 
 		sdlManager.getVideoStreamManager().startRemoteDisplayStream(getApplicationContext(), RemoteDisplay.class, parameters, false);
 	}
