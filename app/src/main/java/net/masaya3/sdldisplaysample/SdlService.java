@@ -14,9 +14,8 @@ import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.smartdevicelink.managers.CompletionListener;
@@ -261,55 +260,21 @@ public class SdlService extends Service {
 			super.onCreate(savedInstanceState);
 			setContentView(R.layout.remote_display);
 
-			final TextView textView = (TextView)this.findViewById(R.id.textView);
-
-			Button button01 = (Button)this.findViewById(R.id.button01);
-			button01.setOnTouchListener(new View.OnTouchListener() {
+			WebView webView1 = (WebView) findViewById(R.id.webView);
+			webView1.setWebViewClient(new WebViewClient());
+			webView1.loadUrl("https://youtu.be/Z44jE7f1amw?list=PLZeNrjPGMduVzURgZnHGaBV-6_TTwU5th");
+			//webView1.zoomBy(0.5f);
+			webView1.getSettings().setJavaScriptEnabled(true);
+			webView1.setOnTouchListener(new View.OnTouchListener() {
 				@Override
 				public boolean onTouch(View view, MotionEvent motionEvent) {
-					Toast.makeText(view.getContext(),"Touch event received: " + motionEvent.getX(),Toast.LENGTH_SHORT).show();
-					switch (motionEvent.getAction()){
-						case MotionEvent.ACTION_DOWN:
-							textView.setText("Hello Android");
 
-					}
+					String msg = String.format("Touch: %d %d", motionEvent.getX(), motionEvent.getY());
 
-					return true;
+					Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+					return false;
 				}
 			});
-
-			Button button02 = (Button)this.findViewById(R.id.button02);
-			button02.setOnTouchListener(new View.OnTouchListener() {
-				@Override
-				public boolean onTouch(View view, MotionEvent motionEvent) {
-					Toast.makeText(view.getContext(),"Touch event received: " + motionEvent.getX(),Toast.LENGTH_SHORT).show();
-
-					switch (motionEvent.getAction()){
-						case MotionEvent.ACTION_DOWN:
-							textView.setText("Hello SDL");
-
-					}
-
-					return true;
-				}
-			});
-
-			final ImageView imageView = (ImageView)this.findViewById(R.id.imageView);
-			Button button03 = (Button)this.findViewById(R.id.button03);
-			button03.setOnTouchListener(new View.OnTouchListener() {
-				@Override
-				public boolean onTouch(View view, MotionEvent motionEvent) {
-					Toast.makeText(view.getContext(),"Touch event received: " + motionEvent.getX(),Toast.LENGTH_SHORT).show();
-
-					switch (motionEvent.getAction()){
-						case MotionEvent.ACTION_DOWN:
-							imageView.setImageResource(R.drawable.sample02);
-					}
-
-					return true;
-				}
-			});
-
 		}
 	}
 
