@@ -12,12 +12,12 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.Display;
-import android.view.MotionEvent;
-import android.view.View;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
 import com.smartdevicelink.managers.CompletionListener;
 import com.smartdevicelink.managers.SdlManager;
 import com.smartdevicelink.managers.SdlManagerListener;
@@ -249,8 +249,10 @@ public class SdlService extends Service {
 	/**
 	 * プロジェクション用の画面
 	 */
-	public static class RemoteDisplay extends SdlRemoteDisplay {
+	public static class RemoteDisplay extends SdlRemoteDisplay implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback{
 
+		private GoogleMap map;
+		private MapView googleView;
 		public RemoteDisplay(Context context, Display display) {
 			super(context, display);
 		}
@@ -260,21 +262,28 @@ public class SdlService extends Service {
 			super.onCreate(savedInstanceState);
 			setContentView(R.layout.remote_display);
 
-			WebView webView1 = (WebView) findViewById(R.id.webView);
-			webView1.setWebViewClient(new WebViewClient());
-			webView1.loadUrl("https://youtu.be/Z44jE7f1amw?list=PLZeNrjPGMduVzURgZnHGaBV-6_TTwU5th");
-			//webView1.zoomBy(0.5f);
-			webView1.getSettings().setJavaScriptEnabled(true);
-			webView1.setOnTouchListener(new View.OnTouchListener() {
-				@Override
-				public boolean onTouch(View view, MotionEvent motionEvent) {
+			googleView = (MapView)findViewById(R.id.map);
 
-					String msg = String.format("Touch: %d %d", motionEvent.getX(), motionEvent.getY());
+			googleView.onCreate(savedInstanceState);
+			googleView.getMapAsync(this);
+			googleView.onResume();
+		}
 
-					Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
-					return false;
-				}
-			});
+
+		@Override
+		public void onMapReady(GoogleMap googleMap) {
+			map = googleMap;
+
+			LatLng sydney = new LatLng(35.6587112,139.7448871);
+
+			map.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 18));
+
+			map.setOnMapLoadedCallback(this);
+
+		}
+
+		@Override
+		public void onMapLoaded() {
 		}
 	}
 
